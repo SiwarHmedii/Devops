@@ -5,7 +5,7 @@ pipeline {
         // Stage 1: Checkout code from GitHub
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/SiwarHmedii/Devops.git'
+                git branch: 'master', url: 'https://github.com/SiwarHmedii/Devops.git'
             }
         }
 
