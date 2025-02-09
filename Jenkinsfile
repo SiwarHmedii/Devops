@@ -1,72 +1,75 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_IMAGE = "siwarhmedi/events-project:latest"
+        DOCKER_CREDENTIALS = "docker-hub-credentials"
+    }
+
     stages {
-        // Stage 1: Checkout code from GitHub
         stage('Checkout') {
             steps {
                 git branch: 'master', url: 'https://github.com/SiwarHmedii/Devops.git'
             }
         }
 
-        // Stage 2: Build the project with Maven
         stage('Build') {
             steps {
                 sh 'mvn clean install'
             }
         }
 
-        // Stage 3: Run unit tests
         stage('Test') {
             steps {
                 sh 'mvn test'
             }
         }
 
-        // Stage 4: Analyze code quality with SonarQube
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') { // Use the SonarQube server name configured in Jenkins
+                withSonarQubeEnv('SonarQube') {
                     sh 'mvn sonar:sonar'
                 }
             }
         }
 
-        // Stage 5: Build the Docker image
         stage('Build Docker Image') {
             steps {
                 script {
-                    dockerImage = docker.build("Siwarhmedi/events-project:latest")
+                    dockerImage = docker.build(DOCKER_IMAGE)
                 }
             }
         }
 
-        // Stage 6: Push the Docker image to Docker Hub
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'dckr_pat_mJEN_sHNNnADDOVDMmn1yZ1QaWg') {
+                    docker.withRegistry('', DOCKER_CREDENTIALS) {
                         dockerImage.push()
                     }
                 }
             }
         }
 
-        // Stage 7: Deploy using Docker Compose
         stage('Deploy') {
             steps {
-                sh 'docker-compose down && docker-compose up -d'
+                sh '''
+                if [ -f docker-compose.yml ]; then
+                  docker-compose down && docker-compose up -d
+                else
+                  echo "⚠️ No docker-compose.yml found! Skipping deployment."
+                fi
+                '''
             }
         }
     }
 
-    // Post-build actions (e.g., send notifications)
     post {
         success {
-            echo 'Pipeline succeeded!'
+            echo '✅ Pipeline succeeded!'
         }
         failure {
-            echo 'Pipeline failed!'
+            echo '❌ Pipeline failed! Check logs for errors.'
         }
     }
 }
