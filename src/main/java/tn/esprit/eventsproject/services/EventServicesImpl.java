@@ -117,11 +117,4 @@ public class EventServicesImpl implements IEventServices{
         }
     }
 
-    @Override
-    public List<Participant> getParReservLogis() {
-
-        return participantRepository.participReservLogis(true, Tache.ORGANISATEUR);
-
-    }
-
 }
