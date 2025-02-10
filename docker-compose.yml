@@ -1,5 +1,7 @@
+version: '3.8'
+
 services:
-  mysqldb:
+  mysql:
     image: mysql:5.7
     restart: unless-stopped
     env_file: ./.env
@@ -9,17 +11,13 @@ services:
     ports:
       - "${MYSQLDB_LOCAL_PORT}:${MYSQLDB_DOCKER_PORT}"
     volumes:
-      - db:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+      - mysql_data:/var/lib/mysql
 
   app:
     depends_on:
-      - mysqldb
-    build:
+      mysql:
+        condition: service_healthy
+    build: 
       context: .
       dockerfile: Dockerfile
     restart: on-failure
@@ -29,14 +27,12 @@ services:
     environment:
       SPRING_APPLICATION_JSON: >-
         {
-          "spring.datasource.url": "jdbc:mysql://mysqldb:${MYSQLDB_DOCKER_PORT}/${MYSQLDB_DATABASE}?createDatabaseIfNotExist=true",
+          "spring.datasource.url": "jdbc:mysql://mysql:${MYSQLDB_DOCKER_PORT}/${MYSQLDB_DATABASE}?createDatabaseIfNotExist=true",
           "spring.datasource.username": "root",
           "spring.datasource.password": "${MYSQLDB_ROOT_PASSWORD}",
           "spring.jpa.properties.hibernate.dialect": "org.hibernate.dialect.MySQLDialect",
           "spring.jpa.hibernate.ddl-auto": "update"
         }
-    stdin_open: true
-    tty: true
 
 volumes:
-  db: {}
+  mysql_data:
