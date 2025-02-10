@@ -106,11 +106,11 @@ pipeline {
     post {
         success {
             echo '✅ SUCCÈS: Pipeline exécutée avec succès!'
-            slackSend channel: '#devops', message: 'Déploiement réussi ✅'  // Optionnel
+            //slackSend channel: '#devops', message: 'Déploiement réussi ✅'  // Optionnel
         }
         failure {
             echo '❌ ÉCHEC: Vérifiez les erreurs dans les logs!'
-            slackSend channel: '#devops', message: 'Échec du déploiement ❌'  // Optionnel
+            //slackSend channel: '#devops', message: 'Échec du déploiement ❌'  // Optionnel
         }
     }
 }
