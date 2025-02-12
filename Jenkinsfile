@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = "siwarhmedi/events-project:latest"
         DOCKER_CREDENTIALS = "docker-hub-credentials"
-        NEXUS_REPO = "http://192.168.33.10:8082/repository/maven-releases/"
+        NEXUS_REPO = "http://localhost:8082/#browse/browse:maven-releases"
         NEXUS_CREDENTIALS = "nexus-credentials"
     }
 
